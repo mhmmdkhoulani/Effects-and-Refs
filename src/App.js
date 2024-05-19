@@ -7,6 +7,7 @@ function App() {
   const [query, setQuery] = useState("");
   const [err, setErr] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const counterRef = useRef(0);
   const inputRef = useRef(null);
   let counterVar = 0;
@@ -14,6 +15,10 @@ function App() {
   useEffect(function () {
     inputRef.current.focus();
   }, []);
+
+  function selectAProduct(product) {
+    setSelectedProduct(product);
+  }
 
   function AddCounter() {
     counterVar++;
@@ -65,7 +70,17 @@ function App() {
       {err ? (
         <ErrorMessage message={err} />
       ) : (
-        <ProductTable products={products}></ProductTable>
+        <div className="row">
+          <div className="col-md-8">
+            <ProductTable
+              products={products}
+              handleSelectProduct={selectAProduct}
+            ></ProductTable>
+          </div>
+          <div className="col-md-4">
+            <SingleProduct product={selectedProduct} />
+          </div>
+        </div>
       )}
 
       <button className="btn btn-danger" onClick={AddCounter}>
@@ -89,7 +104,10 @@ function ErrorMessage({ message }) {
   );
 }
 
-function ProductTable({ products }) {
+function ProductTable({ products, handleSelectProduct }) {
+  function selectProduct(product) {
+    handleSelectProduct(product);
+  }
   return (
     <table className="table table-bordered">
       <thead>
@@ -98,6 +116,7 @@ function ProductTable({ products }) {
           <th>Brand</th>
           <th>Price</th>
           <th>Image</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -118,11 +137,36 @@ function ProductTable({ products }) {
                   style={{ width: "100px" }}
                 />
               </td>
+              <td>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => selectProduct(product)}
+                >
+                  Show Details
+                </button>
+              </td>
             </tr>
           ))
         )}
       </tbody>
     </table>
+  );
+}
+
+function SingleProduct({ product }) {
+  return (
+    <div>
+      {product !== null ? (
+        <div>
+          <img src={product.thumbnail} alt="productimage" />
+          <h1>{product.title}</h1>
+          <p>{product.description}</p>
+          <p>{product.price}</p>
+        </div>
+      ) : (
+        " "
+      )}
+    </div>
   );
 }
 
